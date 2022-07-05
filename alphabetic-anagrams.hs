@@ -47,8 +47,20 @@ dictionaryLengthBruteForce s = toInteger $ length $ nub $ permutations s
 letterScore :: String -> Char -> Int
 letterScore s c = 1 + length ( takeWhile (/= c) $ sort $ nub s)
 
-lexiPos :: String -> Integer
-lexiPos x = (factorial . toInteger . length . nub)  x 
+bruteTest :: String -> [(String, Integer)]
+bruteTest w = takeWhile (\(x,y) -> x /= w) (zip (sort $ nub $ permutations w) [1..])
+
+-- BRUTEFORCE
+-- lexiPos :: String -> Integer
+-- lexiPos s = snd ((dropWhile (\(x,y) -> x /= s) (zip (sort $ nub $ permutations s) [1..])) !! 0)
+
+-- lexiPos :: String -> Integer
+-- lexiPos x = sum [ ls (x!!i)  * (score (drop i x)) |  i <- [0..length x] ]
+--     where 
+--         score subString = round(dictionaryLength $ sort subString)
+--         ls l = toInteger(letterScore x l)
+
+--  * round(dictionaryLength "UESTION")
 
 
 main :: IO()
