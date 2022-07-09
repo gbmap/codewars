@@ -1,13 +1,14 @@
 {-
-We can then assign a number to every word, based on where it falls in an alphabetically sorted list of all words made up of the same group of letters. One way to do this would be to generate the entire list of words and find the desired one, but this would be slow if the word is long.
+We can then assign a number to every word, based on where it falls in an alphabetically 
+sorted list of all words made up of the same group of letters. 
 
-Given a word, return its number. Your function should be able to accept any word 25 letters or less in length (possibly with some letters repeated), and take no more than 500 milliseconds to run. To compare, when the solution code runs the 27 test cases in JS, it takes 101ms.
+One way to do this would be to generate the entire list of words and 
+find the desired one, but this would be slow if the word is long.
 
-For very large words, you'll run into number precision issues in JS (if the word's position is greater than 2^53). For the JS tests with large positions, there's some leeway (.000000001%). If you feel like you're getting it right for the smaller ranks, and only failing by rounding on the larger, submit a couple more times and see if it takes.
-
-Python, Java and Haskell have arbitrary integer precision, so you must be precise in those languages (unless someone corrects me).
-
-C# is using a long, which may not have the best precision, but the tests are locked so we can't change it.
+Given a word, return its number. Your function should be able to accept 
+any word 25 letters or less in length (possibly with some letters repeated), 
+and take no more than 500 milliseconds to run. To compare, 
+when the solution code runs the 27 test cases in JS, it takes 101ms.
 
 Sample words, with their rank:
 ABAB = 2
@@ -19,50 +20,41 @@ BOOKKEEPER = 10743
 
 module Main where
 
-import Data.List (sort, nub, permutations)
-import Data.Map (Map, fromListWith, toList)
+import System.Environment
+import Data.List (sort, nub)
+import Data.Char(ord)
 
-factorial :: (Integral a) => a -> a
-factorial 0 = 1
-factorial n = n * factorial (n-1)
+factorial :: Integer -> Integer
+factorial 1 = 1
+factorial n = n * factorial(n-1)
 
--- combinations :: (Fractional a) => a -> a -> a
--- combinations n c = factorial n / ((factorial c) * factorial (n-c) )
+removeOne :: (Eq a) => a -> [a] -> [a]
+removeOne _ [] = []
+removeOne x (y:ys) = if x == y then ys else y : (removeOne x ys)
 
-nPermutations :: (Integral a) => a -> a
-nPermutations nLetters = factorial ( nLetters-1 )
+sub_words :: String -> [String]
+sub_words s = [sort $ removeOne y s | y <- lesserCharacters s ]
 
-letterFrequency :: (Num a) => String -> Map Char a
-letterFrequency s = fromListWith (+) [(c,1) | c <- s]
+lesserCharacters :: String -> [Char]
+lesserCharacters w = sort . nub $ filter (\z -> (ord z) < (ord (w !! 0))) w
 
-letterRepetitions :: String -> Integer
-letterRepetitions s = product . map (factorial . snd) $ toList (letterFrequency s)
+dict :: String -> Integer
+dict w = let ww = nub w in 
+    div (factorial $ toInteger $ length w) (product [factorial (occurrences c w) | c <- ww ])
 
-dictionaryLength :: String -> Float
-dictionaryLength s = (fromIntegral . factorial . length $ s) / (fromIntegral . letterRepetitions $ s)
+occurrences :: Char -> String -> Integer
+occurrences c w = sum [1 | a <- w, a == c]
 
-dictionaryLengthBruteForce :: String -> Integer
-dictionaryLengthBruteForce s = toInteger $ length $ nub $ permutations s 
+rank :: String -> Integer
+rank [] = 0
+rank (x:xs) 
+    | xs == [] = 1
+    | otherwise = sum $ map (dict) (sub_words (x:xs))
 
-letterScore :: String -> Char -> Int
-letterScore s c = 1 + length ( takeWhile (/= c) $ sort $ nub s)
-
-bruteTest :: String -> [(String, Integer)]
-bruteTest w = takeWhile (\(x,y) -> x /= w) (zip (sort $ nub $ permutations w) [1..])
-
--- BRUTEFORCE
--- lexiPos :: String -> Integer
--- lexiPos s = snd ((dropWhile (\(x,y) -> x /= s) (zip (sort $ nub $ permutations s) [1..])) !! 0)
-
--- lexiPos :: String -> Integer
--- lexiPos x = sum [ ls (x!!i)  * (score (drop i x)) |  i <- [0..length x] ]
---     where 
---         score subString = round(dictionaryLength $ sort subString)
---         ls l = toInteger(letterScore x l)
-
---  * round(dictionaryLength "UESTION")
-
+lexiPos :: String -> Integer
+lexiPos [] = 0
+lexiPos (x:xs) = rank(x:(sort xs)) + lexiPos(xs)
 
 main :: IO()
 main = do
-    print "AEHO"
+    print ([lexiPos w | w <- ["A",  "ABAB", "AAAB", "BAAA", "QUESTION", "BOOKKEEPER", "IMMUNOELECTROPHORETICALLY"]])
