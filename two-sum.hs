@@ -1,10 +1,6 @@
 
 
 
-import Data.List(elemIndex)
-import Data.Maybe(fromJust)
-
-
 -- twoSumRecursive :: [Int] -> Int -> Int -> (Int, Int)
 -- twoSumRecursive [] _ _ = error "No solution"
 -- twoSumRecursive (x:xs) y i
