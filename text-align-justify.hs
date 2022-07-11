@@ -11,6 +11,24 @@ extra_spaces :: Int -> Int -> [Int]
 extra_spaces n e = zipWith (+) (replicate n d) ((replicate (e-(n*d)) 1) ++ (replicate (n-(e-(n*d))) 0))
     where d = div e n
 
+justify :: String -> Int -> String
+justify text width
+    | length text > width = merge line spaces
+    | otherwise = ""
+    w = words text 
+    l = map length w
+    ll = tail scanl (+) 0 l
+    lls = zip ll [0..]
+    lw = takeWhile (\(x,y) -> x+y <= width) lls
+    as = length lw - 1
+    es = width - (last [x+y | (x,y) <- lw])
+    spaces = map ((flip replicate) " ") (extra_spaces es)
+    line = take (last lw) w
+
+
+
+
+
 {- 
 justify :: String -> Int -> String
 justify [] _ = ""
@@ -29,6 +47,7 @@ justify text width
           y = concat (merge ww sc)
 -}
 
+{-
 justify :: String -> Int -> String
 justify text width 
     | length text > width = concat (merge ws sc) ++ "\n" ++ justify (drop d text) width
@@ -42,3 +61,4 @@ justify text width
           sc = (map concat (map ((flip replicate) " ") (map (+1) (extra_spaces as es))))
           ws = take nw w
           d = sum ln + (length ln) - 1 
+-}
