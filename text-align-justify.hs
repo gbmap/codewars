@@ -7,26 +7,23 @@ merge xs [] = xs
 merge [] ys = ys
 merge (x:xs) (y:ys) = x : y : merge xs ys
 
-extra_spaces :: Int -> Int -> [Int]
-extra_spaces n e = zipWith (+) (replicate n d) ((replicate (e-(n*d)) 1) ++ (replicate (n-(e-(n*d))) 0))
+extraSpaces :: Int -> Int -> [Int]
+extraSpaces n e = zipWith (+) (replicate n d) ((replicate (e-(n*d)) 1) ++ (replicate (n-(e-(n*d))) 0))
     where d = div e n
 
 justify :: String -> Int -> String
 justify text width
-    | length text > width = merge line spaces
+    | length text > width = concat $ merge line spaces
     | otherwise = ""
-    w = words text 
-    l = map length w
-    ll = tail scanl (+) 0 l
-    lls = zip ll [0..]
-    lw = takeWhile (\(x,y) -> x+y <= width) lls
-    as = length lw - 1
-    es = width - (last [x+y | (x,y) <- lw])
-    spaces = map ((flip replicate) " ") (extra_spaces es)
-    line = take (last lw) w
-
-
-
+    where w = words text 
+          l = map length w
+          ll = tail $ scanl (+) 0 l
+          lls = zip ll [0..]
+          lw = takeWhile (\(x,y) -> x+y <= width) lls
+          as = length lw - 1
+          es = width - last [x+y | (x,y) <- lw]
+          spaces = map (flip replicate " ") (extraSpace es)
+          line = take (last lw) w
 
 
 {- 
